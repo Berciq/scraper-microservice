@@ -129,7 +129,7 @@ paths:
       summary: Download scraped image
       description: Download a scraped image. The image id's of images scraped as part of scrape job are guaranteed to be numbered consequtively starting with the value 1. So you can also just call this API endpoint until you get a 404 response, in which case you know that there are no more images.
       produces:
-        - application/octet-stream
+        - image/jpeg
       parameters:
         - name: job_id
           in: path

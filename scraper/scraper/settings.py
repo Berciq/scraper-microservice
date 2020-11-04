@@ -1,6 +1,6 @@
-from os.path import abspath, dirname, join
+import os
 
-basedir = abspath(dirname(dirname(__file__)))
+basedir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 # For simplicity, this file contains only settings considered important 
 # or that have been modified from their default.
@@ -25,7 +25,7 @@ ROBOTSTXT_OBEY = False
 IMAGES_EXPIRES = 0
 
 # Define storage for images
-IMAGES_STORE = '/tmp/scraper/'
+IMAGES_STORE = os.environ.get('IMAGES_STORE', '/tmp/scraper/')
 
 # Set up database
-SQLALCHEMY_DATABASE_URI = "sqlite:////" + join(basedir, 'scape_jobs.db')
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "sqlite:////" + os.path.join(basedir, 'scrape_jobs.db'))
