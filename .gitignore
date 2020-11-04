@@ -1,0 +1,5 @@
+.vscode
+requirements-*.txt
+venv
+*.db
+*.pyc

@@ -1,0 +1,176 @@
+swagger: "2.0"
+info:
+  title: Scraper Microservice
+  version: "1.0"
+  description: Simple API for initiating webpage scrape jobs and accessing scrapped text and images.
+consumes:
+  - application/json
+produces:
+  - application/json
+  - text/plain
+  - application/octet-stream
+basePath: /
+paths:
+  /scrape-jobs:
+    post:
+      tags:
+        - ScrapeJob
+      operationId: jobs.create
+      summary: Schedules a webpage scrape job
+      description: Schedules a webpage scrape job. The only required parameter is a URL. By default the scraper will download the page content (converted to plain text) as well as all of the images from the page (by looking for the &lt;img&gt; tags). All downloaded images are automatically converted to JPEG format for consistency. Hold on to the scrape job ID that you receive in the response. You will need it in order to access the resources later on.
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: job
+          description: The job to initiate
+          schema:
+            type: object
+            required:
+              - url
+            properties:
+              url:
+                type: string
+                format: uri
+                description: The URL of the webpage to scrape
+              scrape_text:
+                type: boolean
+                description: Whether the scraper should download the webpage content as text (defaults to true)
+                default: true
+              scrape_images:
+                type: boolean
+                description: Whether the scraper should download the images from the webpage (defaults to true)
+                default: true
+              force_new:
+                type: boolean
+                description: Whether to force schedule a new scrape job even if the page was scraped before
+                default: false
+      responses:
+        201:
+          description: New scrape job created
+          schema:
+            $ref: '#/definitions/ScrapeJob'
+        303:
+          description: Redirects to the status update for a previusly scheduled scrape job
+  /scrape-jobs/{job_id}:
+    get:
+      tags:
+        - ScrapeJob
+      operationId: jobs.get_status
+      summary: Get a scrape job status update
+      description: Use this to check whether the scrape job has been completed. The recommended approach is to poll this API endpoint until the scrape job is completed before attempting to access the downloaded resources.
+      produces:
+        - application/json
+      parameters:
+        - name: job_id
+          in: path
+          description: Scrape Job ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Return scrape job status update
+          schema:
+            $ref: '#/definitions/ScrapeJob'
+        404:
+          description: Scrape job not found
+  /scrape-jobs/{job_id}/text:
+    get:
+      tags:
+        - Text
+      operationId: content.get_text
+      summary: Download scraped text
+      description: Download the webpage content as plain text. The webpage is converted to text using BeautifulSoup's get_text() method.
+      produces:
+        - text/plain
+      parameters:
+        - name: job_id
+          in: path
+          description: Scrape Job ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Return webpage content converted to text
+          schema:
+            type: string
+        404:
+          description: Scrape job not complete
+  /scrape-jobs/{job_id}/images:
+    get:
+      tags:
+        - Image
+      operationId: content.get_images
+      summary: Get list of scraped images
+      description: Get a list of all of the images scraped as part of this specific scrape job. This will be a list of URLs to the download image API endpoint that you can call right away in order to download the images.
+      produces:
+        - application/json
+      parameters:
+        - name: job_id
+          in: path
+          description: Scrape Job ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Return list of images
+          schema:
+            type: array
+            items:
+              type: string
+              format: uri
+        404:
+          description: Scrape job not complete
+  /scrape-jobs/{job_id}/images/{image_id}:
+    get:
+      tags:
+        - Image
+      operationId: content.get_image
+      summary: Download scraped image
+      description: Download a scraped image. The image id's of images scraped as part of scrape job are guaranteed to be numbered consequtively starting with the value 1. So you can also just call this API endpoint until you get a 404 response, in which case you know that there are no more images.
+      produces:
+        - application/octet-stream
+      parameters:
+        - name: job_id
+          in: path
+          description: Scrape Job ID
+          required: true
+          type: integer
+        - name: image_id
+          in: path
+          description: Image ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Return image
+          schema:
+            type: string
+            format: binary
+        404:
+          description: Image not found or scrape job not complete
+
+definitions:
+  ScrapeJob:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Job ID
+        readOnly: true
+      url:
+        type: string
+        description: Webpage URL
+        readOnly: true
+      scrape_text:
+        type: boolean
+        description: Whether the scraper should download the webpage content as text (defaults to true)
+        readOnly: true
+      scrape_images:
+        type: boolean
+        description: Whether the scraper should download the images from the webpage (defaults to true)
+        readOnly: true
+      is_finished:
+        type: boolean
+        description: Whether the scrape job is complete and the downloaded resources available
+        readOnly: true
