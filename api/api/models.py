@@ -58,13 +58,18 @@ class ScrapeJob(db.Model):
         return job
 
     def to_dict(self):
-        return {
+        dic = {
             'id': self.id,
             'url': self.url,
             'scrape_text': self.scrape_text,
             'scrape_images': self.scrape_images,
             'is_finished': self.is_finished,
         }
+        if self.error is not None:
+            dic['error'] = self.error
+        if self.is_finished and self.timestamp is not None:
+            dic['timestamp'] = self.timestamp
+        return dic
 
 
 class ScrapedText(db.Model):

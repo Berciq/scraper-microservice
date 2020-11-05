@@ -63,7 +63,8 @@ class ContentSpider(scrapy.Spider):
         job_id = failure.request.meta['job_id']
         with DbSession(self.crawler.settings['SQLALCHEMY_DATABASE_URI']) as db:
             job = db.query(ScrapeJob).filter(ScrapeJob.id==job_id).one_or_none()
-            job.error = str(failure)
+            job.is_finished= True
+            job.error = str(failure.value)
             db.commit()
 
     def on_idle(self):

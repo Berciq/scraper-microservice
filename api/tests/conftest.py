@@ -1,6 +1,5 @@
 import pathlib
 
-import api.build_database
 import pytest
 from api.config import connex_app, db, storage
 from api.models import ScrapedImage, ScrapedText, ScrapeJob

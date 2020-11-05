@@ -58,7 +58,7 @@ paths:
         - ScrapeJob
       operationId: api.jobs.get_status
       summary: Get a scrape job status update
-      description: Use this to check whether the scrape job has been completed. The recommended approach is to poll this API endpoint until the scrape job is completed before attempting to access the downloaded resources.
+      description: Use this to check whether the scrape job has been completed succesfully. Check to ensure that 'is_finished' is true and there is no 'error'.
       produces:
         - application/json
       parameters:
@@ -152,6 +152,12 @@ paths:
 definitions:
   ScrapeJob:
     type: object
+    required:
+      - id
+      - url
+      - scrape_text
+      - scrape_images
+      - is_finished
     properties:
       id:
         type: integer
@@ -172,4 +178,13 @@ definitions:
       is_finished:
         type: boolean
         description: Whether the scrape job is complete and the downloaded resources available
+        readOnly: true
+      error:
+        type: string
+        description: The error message if the scrape job encountered an error
+        readOnly: true
+      timestamp:
+        type: string
+        format: date-time
+        description: The time when the webpage was scraped
         readOnly: true
