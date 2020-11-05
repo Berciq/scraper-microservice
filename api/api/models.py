@@ -1,5 +1,6 @@
-from config import db
-from enum import Enum
+from datetime import datetime
+
+from api.config import db
 
 
 class ScrapeJob(db.Model):
@@ -9,6 +10,8 @@ class ScrapeJob(db.Model):
     scrape_text = db.Column(db.Boolean, default=True)
     scrape_images = db.Column(db.Boolean, default=True)
     is_finished = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    error = db.Column(db.Text, default=None)
     scraped_text = db.relationship(
         "ScrapedText",
         backref="scrape_job",
@@ -28,15 +31,22 @@ class ScrapeJob(db.Model):
         return cls.query.filter(cls.id == id).one_or_none()
 
     @classmethod
-    def get_most_recent_by_url(cls, url):
+    def get_most_recent_match(cls, job):
         """
         This returns the most recent scrape job scheduled for the given URL.
         It strips off anything afater '#' to limit duplicate requests.
 
         :return: ScrapeJob or None if there is none
         """
-        url = clean_url(url)
-        return cls.query.filter(cls.url == url).order_by(cls.id.desc()).first()
+        url = clean_url(job['url'])
+        scrape_text = job.get('scrape_text', True)
+        scrape_images = job.get('scrape_images', True)
+        query = cls.query.filter(cls.url == url).order_by(cls.id.desc())
+        if scrape_text:
+            query = query.filter(cls.scrape_text == True)
+        if scrape_images:
+            query = query.filter(cls.scrape_images == True)
+        return query.first()
 
     @classmethod
     def from_dict(cls, dic):

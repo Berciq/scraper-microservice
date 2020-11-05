@@ -15,7 +15,7 @@ paths:
     post:
       tags:
         - ScrapeJob
-      operationId: jobs.create
+      operationId: api.jobs.create
       summary: Schedules a webpage scrape job
       description: Schedules a webpage scrape job. The only required parameter is a URL. By default the scraper will download the page content (converted to plain text) as well as all of the images from the page (by looking for the &lt;img&gt; tags). All downloaded images are automatically converted to JPEG format for consistency. Hold on to the scrape job ID that you receive in the response. You will need it in order to access the resources later on.
       produces:
@@ -56,7 +56,7 @@ paths:
     get:
       tags:
         - ScrapeJob
-      operationId: jobs.get_status
+      operationId: api.jobs.get_status
       summary: Get a scrape job status update
       description: Use this to check whether the scrape job has been completed. The recommended approach is to poll this API endpoint until the scrape job is completed before attempting to access the downloaded resources.
       produces:
@@ -78,7 +78,7 @@ paths:
     get:
       tags:
         - Text
-      operationId: content.get_text
+      operationId: api.content.get_text
       summary: Download scraped text
       description: Download the webpage content as plain text. The webpage is converted to text using BeautifulSoup's get_text() method.
       produces:
@@ -100,7 +100,7 @@ paths:
     get:
       tags:
         - Image
-      operationId: content.get_images
+      operationId: api.content.get_images
       summary: Get list of scraped images
       description: Get a list of all of the images scraped as part of this specific scrape job. This will be a list of URLs to the download image API endpoint that you can call right away in order to download the images.
       produces:
@@ -117,15 +117,14 @@ paths:
           schema:
             type: array
             items:
-              type: string
-              format: uri
+              type: integer
         404:
           description: Scrape job not complete
   /scrape-jobs/{job_id}/images/{image_id}:
     get:
       tags:
         - Image
-      operationId: content.get_image
+      operationId: api.content.get_image
       summary: Download scraped image
       description: Download a scraped image. The image id's of images scraped as part of scrape job are guaranteed to be numbered consequtively starting with the value 1. So you can also just call this API endpoint until you get a 404 response, in which case you know that there are no more images.
       produces:

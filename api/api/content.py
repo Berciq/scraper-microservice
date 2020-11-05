@@ -1,6 +1,6 @@
 import os
-from config import app, db
-from models import ScrapeJob, ScrapedImage
+from api.config import app, db, storage
+from api.models import ScrapeJob, ScrapedImage
 from flask import abort, redirect
 
 def get_text(job_id):
@@ -26,5 +26,5 @@ def get_image(job_id, image_id):
     img = existing_job.scraped_images.filter(ScrapedImage.id==image_id).one_or_none()
     if img is None:
         abort(404, f"Image not found for ID: {image_id}")
-    return open(os.path.join(app.config['IMAGES_STORE'], img.path), 'rb').read()
+    return storage.get_image(img.path)
 

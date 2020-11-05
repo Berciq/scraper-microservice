@@ -1,4 +1,7 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Table
+from datetime import datetime
+
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String, Table,
+                        Text)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
@@ -12,6 +15,8 @@ class ScrapeJob(Base):
     scrape_text = Column(Boolean, default=True)
     scrape_images = Column(Boolean, default=True)
     is_finished = Column(Boolean, default=False)
+    timestamp = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    error = Column(Text, default=None)
     scraped_text = relationship(
         "ScrapedText",
         backref="scrape_job",

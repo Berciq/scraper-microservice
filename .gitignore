@@ -1,5 +1,6 @@
 .env
 .vscode
+dev-run.sh
 requirements-*.txt
 venv
 *.db

@@ -3,7 +3,7 @@ import os
 import sys
 from os.path import abspath, dirname, join
 
-basedir = abspath(dirname(dirname(__file__)))
+basedir = abspath(dirname(dirname(dirname(__file__))))
 
 class Config:
     DEBUG = False
@@ -22,17 +22,14 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
 class TestingConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite://:memory:'
+    SQLALCHEMY_DATABASE_URI = "sqlite:////" + join(basedir, "test.db")
     IMAGES_STORE = '/tmp/scraper-test/'
-    DEBUG = True
+    DEBUG = False
     TESTING = True
 
 if os.environ.get('FLASK_ENV', 'production') == 'production':
-    print("Running app in production environment")
     configmodule = ProductionConfig()
 elif "pytest" in sys.modules:
-    print("Running app in testing environment")
     configmodule = TestingConfig()
 else:
-    print("Running app in development environment")
     configmodule = DevelopmentConfig()
